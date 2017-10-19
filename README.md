@@ -23,3 +23,4 @@
 ## 深入
 - Tree Shaking 基本原理及解决方案
 - Virtual DOM 基本原理及用途
+- Babel 将 ES6 转化为 ES5 的基本原理
