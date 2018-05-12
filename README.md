@@ -9,6 +9,7 @@
 * [Describe Event Delegation](#describe-event-delegation)
 * [How to Achieve Vertical Align Center](#how-to-achieve-vertical-align-center)
 * [Describe two modes of `vue-router`](#describe-two-modes-of-vue-router)
+* [A Comprehensive Question With Vue](#a-comprehensive-question-with-vue)
 
 ## Answers
 
@@ -48,7 +49,7 @@ Javascript 中的每个函数都有 apply 和 call 方法，用于在函数执�
 ```javascript
 Math.max.apply(null, arr);
 ```
-也可以利用 ES6 的数组解构实现：
+也可以利用 ES6 的扩展运算符实现：
 ```javascript
 Math.max(...arr);
 ```
@@ -70,12 +71,54 @@ JSONP 是实现跨域的一种方式，它是通过动态创建 script 标签赋
 CSS 实现垂直居中有多种方式：
 * 使用 Flex 布局并设置 align-items: center. (如果是纵向排列则 justify-content: center)
 * 使用 display: table-cell; vertical-align: middle; 实现
-* 将子元素宽高固定，则设置 position:absolute，设置 width 和 height，四个定位都是0, margin:auto
+* 如果子元素宽高固定，则设置 position:absolute，设置 width 和 height，四个定位都是0, margin:auto
 * 如果子元素高度不固定，则设置 top:50%,  transform: translateY(-50%);
 * 如果子元素是文字，则可以设置 line-height 与父元素高度相同（仅适用于单行文字）
 * 如果父元素高度可变，则可以设置 padding-top 和 padding-bottom 为相同的值实现
 
 ### Describe two modes of vue router
 Vue Router 有两种路由模式，hash 和 history，默认为 hash
-* Hash - 使用 URL Hash 作为路由路径，在 URL 中会出现 # 字样，底层基于 hashchange 事件
+* Hash - 使用 URL Hash 作为路由路径，在 URL 中会出现 # 字样，底层基于 hashchange 事件和 location.hash 实现
 * History - 基于 History API 实现，底层基于 history.pushState 和 popstate 事件实现。但由于 URL 是正常形式，通常需要服务端配置支持。
+
+### A comprehensive question with vue
+这是一道关于 Vue.js 的综合题目
+```html
+<body>
+<div id="app">
+    <span ref="text">{{ text }}</span>
+    <button @click="changeText">改变文字</button>
+</div>
+</body>
+```
+
+```css
+body { font-size: 10px; }
+#app { font-size: 2em; }
+```
+
+```javascript
+new Vue({
+    el: '#app',
+    data: {
+        text: '新年好'
+    },
+    methods: {
+        changeText() {
+            this.text = '新年快乐';
+            console.log(this.$refs.text.offsetWidth);
+        }
+    }
+});
+```
+
+问：当点击按钮时，在控制台打印的内容是什么？
+
+本题考察的知识点有：em/px 换算关系、中文字体、offsetWidth、Vue 异步更新 DOM、nextTick。下面是详细分析：
+* em 单位继承父元素字体大小，#app中的1em=10px，所以2em=20px
+* 在不设置字符间距(letter-spacing)时，一个中文汉字的宽度即为字体大小(font-size)，多个汉字的宽度用 font-size 乘以个数即可
+* offsetWidth 叫做偏移宽度，即元素的内容区宽度+padding+border 的宽度，单位是 px，这里 span 未设置 padding 和 border，所以 offsetWidth 就是 span 所包含文字的宽度
+* 当点击 changeText 方法时，更新了模型数据 text 为"新年快乐"四个字，此时 DOM 还没有更新，所以第二行代码打印的是改变前的 span 宽度，即"新年好"的宽度，即60
+* 如果想打印出80，可以将最后一行代码放置在 Vue.nextTick 回调中，此时回调将在 DOM 更新完成后得到执行。放在 setTimeout(fn, 0)中亦可。
+
+关于 Vue 的异步更新，详见官网文档：[深入响应式原理](https://cn.vuejs.org/v2/guide/reactivity.html)
